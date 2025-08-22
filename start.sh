@@ -1,2 +1,2 @@
 #!/bin/bash
-python working_bot:app
+python working_bot.py
