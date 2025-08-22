@@ -1,2 +1,2 @@
 #!/bin/bash
-python working_bot.py
+gunicorn app:app --bind 0.0.0.0:$PORT
