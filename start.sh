@@ -1,2 +1,2 @@
 #!/bin/bash
-gunicorn working_bot:app
+python working_bot:app
