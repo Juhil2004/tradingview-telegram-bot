@@ -71,19 +71,24 @@ def get_ltp(symbol):
         return None
     
 
-    
 def get_portfolio():
     url = "https://napi.kotaksecurities.com/portfolio/holdings"
-    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}", "accept": "application/json"}
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "accept": "application/json"
+    }
     try:
         res = requests.get(url, headers=headers)
+        print("🔍 Portfolio API status:", res.status_code)
+        print("🔍 Portfolio API response:", res.text)   # full response
+
         data = res.json()
         holdings = data.get("data", [])
         if not holdings:
             return "📭 No holdings found."
         
         msg = "📂 Your Portfolio:\n"
-        for h in holdings[:5]:  # show first 5 holdings
+        for h in holdings[:5]:
             symbol = h.get("instrumentName")
             qty = h.get("netQty")
             avg_price = h.get("avgCostPrice")
@@ -93,7 +98,7 @@ def get_portfolio():
     except Exception as e:
         print("Portfolio fetch error:", e)
         return "⚠️ Error fetching portfolio."
-
+    
 
 
 # ======== STRATEGY LOOP ========
@@ -101,7 +106,7 @@ def trading_loop():
     send_telegram("🚀 Kotak Neo Trading Bot started!")
 
     refresh_access_token()
-    
+
         # Fetch portfolio once at startup
     portfolio_msg = get_portfolio()
     send_telegram(portfolio_msg)
