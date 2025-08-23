@@ -75,14 +75,17 @@ def get_portfolio():
     url = "https://napi.kotaksecurities.com/portfolio/holdings"
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}",
-        "accept": "application/json"
+        "accept": "application/json",
+        "x-client-id": CLIENT_ID,   # sometimes required
     }
     try:
+        send_telegram("📡 Calling Portfolio API...")
         res = requests.get(url, headers=headers)
-        print("🔍 Portfolio API status:", res.status_code)
-        print("🔍 Portfolio API response:", res.text)   # full response
 
-        data = res.json()
+        send_telegram(f"Portfolio API raw status: {res.status_code}")
+        send_telegram(f"Portfolio API raw body: {res.text[:1000]}")  # first 1000 chars
+
+        data = res.json()  # <-- could fail here if body isn't JSON
         holdings = data.get("data", [])
         if not holdings:
             return "📭 No holdings found."
@@ -96,9 +99,10 @@ def get_portfolio():
             msg += f"\n🔹 {symbol}\n   Qty: {qty} | Avg: {avg_price} | LTP: {ltp}"
         return msg
     except Exception as e:
-        print("Portfolio fetch error:", e)
+        # Catch absolutely everything
+        send_telegram(f"⚠️ Portfolio fetch error: {repr(e)}")
         return "⚠️ Error fetching portfolio."
-    
+
 
 
 # ======== STRATEGY LOOP ========
