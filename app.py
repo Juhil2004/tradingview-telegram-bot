@@ -73,12 +73,21 @@ def get_ltp(symbol):
 def get_portfolio():
     try:
         headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-        response = requests.get("https://napi.kotaksecurities.com/portfolio/v1/holdings", headers=headers)
+        url = "https://napi.kotaksecurities.com/portfolio/v1/holdings"
+
+        response = requests.get(url, headers=headers)
+
+        # Log everything for debugging
+        print("Portfolio API Status:", response.status_code)
+        print("Portfolio API Response:", response.text)
+
         if response.status_code == 200:
             return response.json()
         else:
             return f"Portfolio fetch failed: {response.status_code} {response.text}"
+
     except Exception as e:
+        print("Exception in get_portfolio:", str(e))
         return f"Error: {str(e)}"
 
     
