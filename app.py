@@ -99,11 +99,14 @@ def get_portfolio():
 # ======== STRATEGY LOOP ========
 def trading_loop():
     send_telegram("🚀 Kotak Neo Trading Bot started!")
+
+    refresh_access_token()
+    
         # Fetch portfolio once at startup
     portfolio_msg = get_portfolio()
     send_telegram(portfolio_msg)
 
-    refresh_access_token()
+    
 
     while True:
         for symbol in SYMBOLS:
