@@ -1,15 +1,12 @@
 import requests
 import time
-import json
 from datetime import datetime
 from flask import Flask
 from threading import Thread
 
 # ======== KOTAK NEO CONFIG ========
-CLIENT_ID = "YWCBT"
-CLIENT_SECRET = "gIYnTsFzV"
-CONSUMER_KEY = "TfwIXS7YwcTHuD9foRcXUfuPfr0a"
-CONSUMER_SECRET = "wE2UjQdCJaJf2XwCjfuL9dNTN5wa"
+CLIENT_ID = "TfwIXS7YwcTHuD9foRcXUfuPfr0a"  # From DevPortal
+CLIENT_SECRET = "wE2UjQdCJaJf2XwCjfuL9dNTN5wa"  # From DevPortal
 REFRESH_TOKEN = "60cca199-a9dd-37d4-b584-da44ec779d41"   # From login flow
 ACCESS_TOKEN = None  # Will be refreshed automatically
 
@@ -25,7 +22,7 @@ app = Flask(__name__)
 bot_thread = None
 
 
-# ======== TELEGRAM ========
+# ======== TELEGRAM FUNCTION ========
 def send_telegram(message):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     try:
@@ -47,16 +44,24 @@ def refresh_access_token():
     try:
         res = requests.post(url, data=payload)
         data = res.json()
-        ACCESS_TOKEN = data.get("access_token")
-        print("🔑 Access token refreshed")
+        if "access_token" in data:
+            ACCESS_TOKEN = data["access_token"]
+            print("🔑 Access token refreshed")
+        else:
+            print("❌ Token refresh error:", data)
     except Exception as e:
         print("Error refreshing token:", e)
 
 
 def get_ltp(symbol):
+    if not ACCESS_TOKEN:
+        print("⚠️ No access token yet!")
+        return None
+
     url = f"https://napi.kotaksecurities.com/orders/quote/ltp"
     headers = {"Authorization": f"Bearer {ACCESS_TOKEN}", "accept": "application/json"}
     params = {"instrumentCode": symbol}
+
     try:
         res = requests.get(url, headers=headers, params=params)
         data = res.json()
@@ -97,7 +102,6 @@ def health():
 def start_bot():
     global bot_thread
     if bot_thread is None or not bot_thread.is_alive():
-        from threading import Thread
         bot_thread = Thread(target=run_bot, daemon=True)
         bot_thread.start()
         return "🚀 Bot started!"
@@ -109,7 +113,6 @@ def start_bot():
 def auto_start():
     global bot_thread
     if bot_thread is None or not bot_thread.is_alive():
-        from threading import Thread
         bot_thread = Thread(target=run_bot, daemon=True)
         bot_thread.start()
         print("🚀 Auto-started bot on Render")
