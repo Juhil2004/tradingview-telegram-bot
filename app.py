@@ -109,9 +109,8 @@ def start_bot():
         return "⚡ Already running"
 
 
-@app.before_first_request
-def auto_start():
-    global bot_thread
+# ======== AUTO START FOR FLASK 3.x ========
+with app.app_context():
     if bot_thread is None or not bot_thread.is_alive():
         bot_thread = Thread(target=run_bot, daemon=True)
         bot_thread.start()
