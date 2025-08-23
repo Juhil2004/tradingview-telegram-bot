@@ -70,48 +70,29 @@ def get_ltp(symbol):
         print("LTP fetch error:", e)
         return None
     
-def get_portfolio():
-    try:
-        headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-        url = "https://napi.kotaksecurities.com/portfolio/v1/holdings"
-
-        response = requests.get(url, headers=headers)
-
-        # Log everything for debugging
-        print("Portfolio API Status:", response.status_code)
-        print("Portfolio API Response:", response.text)
-
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return f"Portfolio fetch failed: {response.status_code} {response.text}"
-
-    except Exception as e:
-        print("Exception in get_portfolio:", str(e))
-        return f"Error: {str(e)}"
 
     
-# def get_portfolio():
-#     url = "https://napi.kotaksecurities.com/portfolio/holdings"
-#     headers = {"Authorization": f"Bearer {ACCESS_TOKEN}", "accept": "application/json"}
-#     try:
-#         res = requests.get(url, headers=headers)
-#         data = res.json()
-#         holdings = data.get("data", [])
-#         if not holdings:
-#             return "📭 No holdings found."
+def get_portfolio():
+    url = "https://napi.kotaksecurities.com/portfolio/holdings"
+    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}", "accept": "application/json"}
+    try:
+        res = requests.get(url, headers=headers)
+        data = res.json()
+        holdings = data.get("data", [])
+        if not holdings:
+            return "📭 No holdings found."
         
-#         msg = "📂 Your Portfolio:\n"
-#         for h in holdings[:5]:  # show first 5 holdings
-#             symbol = h.get("instrumentName")
-#             qty = h.get("netQty")
-#             avg_price = h.get("avgCostPrice")
-#             ltp = h.get("ltp")
-#             msg += f"\n🔹 {symbol}\n   Qty: {qty} | Avg: {avg_price} | LTP: {ltp}"
-#         return msg
-#     except Exception as e:
-#         print("Portfolio fetch error:", e)
-#         return "⚠️ Error fetching portfolio."
+        msg = "📂 Your Portfolio:\n"
+        for h in holdings[:5]:  # show first 5 holdings
+            symbol = h.get("instrumentName")
+            qty = h.get("netQty")
+            avg_price = h.get("avgCostPrice")
+            ltp = h.get("ltp")
+            msg += f"\n🔹 {symbol}\n   Qty: {qty} | Avg: {avg_price} | LTP: {ltp}"
+        return msg
+    except Exception as e:
+        print("Portfolio fetch error:", e)
+        return "⚠️ Error fetching portfolio."
 
 
 
