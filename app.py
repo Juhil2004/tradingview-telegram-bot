@@ -260,6 +260,7 @@ def run_demo_trading_bot():
 
 # ======== FLASK APP INTEGRATION ========
 app = Flask(__name__)
+bot_thread = None
 
 # This route will serve as a simple health check.
 # Render's system will hit this URL to confirm the service is running.
@@ -276,6 +277,16 @@ def run_bot_in_background():
     except Exception as e:
         print(f"❌ Fatal error in background thread: {e}")
         send_telegram_message(f"❌ Fatal error: {e}")
+
+@app.route('/start-bot')
+def start_bot():
+    global bot_thread
+    if bot_thread is None or not bot_thread.is_alive():
+        bot_thread = Thread(target=run_bot_in_background, daemon=True)
+        bot_thread.start()
+        return "🚀 Bot started successfully!"
+    else:
+        return "⚡ Bot is already running."
 
 # The `if __name__ == "__main__":` block should be at the end.
 if __name__ == '__main__':
