@@ -64,7 +64,7 @@ def get_ltp(symbol):
 
     res = requests.get(url, headers=headers)
     send_telegram(f"Portfolio API raw status: {res.status_code}")
-    
+
     # Content-Type check
     if "application/json" not in res.headers.get("Content-Type", ""):
         send_telegram("⚠️ API returned non-JSON (probably login page)")
@@ -84,30 +84,32 @@ def get_portfolio():
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "accept": "application/json",
-        "x-client-id": CLIENT_ID,   # sometimes required
+        "x-client-id": CLIENT_ID,
+        "x-client-secret": CLIENT_SECRET,  # sometimes required
     }
+    send_telegram("📡 Calling Portfolio API...")
+    res = requests.get(url, headers=headers)
+    send_telegram(f"Portfolio API raw status: {res.status_code}")
+    send_telegram(f"Portfolio API raw body: {res.text[:1000]}")
+    
+    if "application/json" not in res.headers.get("Content-Type", ""):
+        send_telegram("⚠️ API returned non-JSON (probably login page)")
+        return "⚠️ Error: Not authorized or wrong headers."
+    
     try:
-        send_telegram("📡 Calling Portfolio API...")
-        res = requests.get(url, headers=headers)
-
-        send_telegram(f"Portfolio API raw status: {res.status_code}")
-        send_telegram(f"Portfolio API raw body: {res.text[:1000]}")  # first 1000 chars
-
-        data = res.json()  # <-- could fail here if body isn't JSON
+        data = res.json()
         holdings = data.get("data", [])
         if not holdings:
             return "📭 No holdings found."
-        
         msg = "📂 Your Portfolio:\n"
         for h in holdings[:5]:
             symbol = h.get("instrumentName")
             qty = h.get("netQty")
             avg_price = h.get("avgCostPrice")
             ltp = h.get("ltp")
-            msg += f"\n🔹 {symbol}\n   Qty: {qty} | Avg: {avg_price} | LTP: {ltp}"
+            msg += f"\n🔹 {symbol}\n   Qty: {qty} | Avg: {avg_price} | LTP: {ltp}"
         return msg
     except Exception as e:
-        # Catch absolutely everything
         send_telegram(f"⚠️ Portfolio fetch error: {repr(e)}")
         return "⚠️ Error fetching portfolio."
 
