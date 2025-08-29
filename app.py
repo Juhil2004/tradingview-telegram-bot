@@ -59,8 +59,16 @@ def get_ltp(symbol):
         return None
 
     url = f"https://napi.kotaksecurities.com/orders/quote/ltp"
-    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}", "accept": "application/json"}
+    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}", "accept": "application/json","x-client-id": CLIENT_ID,"x-client-secret": CLIENT_SECRET,"x-kotak-client-type": "API"}
     params = {"instrumentCode": symbol}
+
+    res = requests.get(url, headers=headers)
+    send_telegram(f"Portfolio API raw status: {res.status_code}")
+    
+    # Content-Type check
+    if "application/json" not in res.headers.get("Content-Type", ""):
+        send_telegram("⚠️ API returned non-JSON (probably login page)")
+        return "⚠️ Error: Not authorized or wrong headers."
 
     try:
         res = requests.get(url, headers=headers, params=params)
